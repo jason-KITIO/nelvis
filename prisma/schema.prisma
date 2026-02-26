@@ -1,0 +1,542 @@
+// -------------------- GENERATOR & DATASOURCE --------------------
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -------------------- CORE : AUTH / ORG --------------------
+
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  phone        String?
+  avatarUrl    String?
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  orgMemberships OrgMember[]
+  notesDeFrais   NoteDeFrais[]
+  auditLogs      AuditLog[]
+}
+
+model Organisation {
+  id               String        @id @default(uuid())
+  name             String
+  siret            String?
+  siren            String?
+  formeJuridique   String        // Enum en DB si besoin
+  pays             String
+  adresse          String
+  logoUrl          String?
+  charteGraphique  Json?
+  createdAt        DateTime      @default(now())
+
+  members          OrgMember[]
+  modules          UserModule?
+  subscriptions    Subscription[]
+  auditLogs        AuditLog[]
+  chatConversations ChatConversation[]
+
+  // Liens vers modules
+  dossiersJuridiques DossierJuridique[]
+  procesVerbaux      ProcesVerbal[]
+  clients            Client[]
+  produits           Produit[]
+  devis              Devis[]
+  factures           Facture[]
+  opportunites       OpportuniteCRM[]
+  notesDeFrais       NoteDeFrais[]
+  comptesBancaires   CompteBancaire[]
+  ecritures          EcritureComptable[]
+  rapportsTVA        RapportTVA[]
+  employes           Employe[]
+  dossiersDouane     DossierDouane[]
+  appelsRecouvrement AppelRecouvrement[]
+}
+
+model OrgMember {
+  id              String        @id @default(uuid())
+  userId          String
+  organisationId  String
+  role            OrgMemberRole
+  invitedAt       DateTime      @default(now())
+  acceptedAt      DateTime?
+
+  user            User          @relation(fields: [userId], references: [id])
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+
+  @@unique([userId, organisationId])
+}
+
+enum OrgMemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model UserModule {
+  id              String        @id @default(uuid())
+  organisationId  String        @unique
+  juridique       Boolean       @default(false)
+  facturation     Boolean       @default(false)
+  comptabilite    Boolean       @default(false)
+  rhPaie          Boolean       @default(false)
+  vocal           Boolean       @default(false)
+  logistique      Boolean       @default(false)
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+}
+
+model Subscription {
+  id              String        @id @default(uuid())
+  organisationId  String
+  module          String
+  type            SubscriptionType
+  montant         Decimal
+  statut          SubscriptionStatus
+  stripeSubId     String?
+  paypalSubId     String?
+  debut           DateTime      @default(now())
+  fin             DateTime?
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+
+  @@index([organisationId, module])
+}
+
+enum SubscriptionType {
+  ACTE
+  ABONNEMENT
+}
+
+enum SubscriptionStatus {
+  ACTIF
+  EXPIRE
+}
+
+model AuditLog {
+  id              String        @id @default(uuid())
+  userId          String?
+  organisationId  String
+  action          String
+  module          String
+  payload         Json
+  iaAgent         String?
+  createdAt       DateTime      @default(now())
+
+  user            User?         @relation(fields: [userId], references: [id])
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+
+  @@index([organisationId, module])
+}
+
+// -------------------- MODULE FONDATEUR / JURIDIQUE --------------------
+
+model DossierJuridique {
+  id              String              @id @default(uuid())
+  organisationId  String
+  statut          DossierStatut
+  formeJuridique  String
+  questionnaire   Json
+  createdAt       DateTime            @default(now())
+
+  organisation    Organisation        @relation(fields: [organisationId], references: [id])
+  documents       DocumentJuridique[]
+
+  @@index([organisationId])
+}
+
+enum DossierStatut {
+  DRAFT
+  SOUMIS
+  VALIDE
+}
+
+model DocumentJuridique {
+  id          String            @id @default(uuid())
+  dossierId   String
+  type        DocumentType
+  contenu     String
+  fichierUrl  String
+  supprimeLe  DateTime?
+  createdAt   DateTime          @default(now())
+
+  dossier     DossierJuridique  @relation(fields: [dossierId], references: [id])
+}
+
+enum DocumentType {
+  STATUTS
+  M0
+  PV
+  ANNONCE
+}
+
+model ProcesVerbal {
+  id              String        @id @default(uuid())
+  organisationId  String
+  typeAG          TypeAG
+  dateAG          DateTime
+  decisions       Json
+  documentUrl     String
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+}
+
+enum TypeAG {
+  AGO
+  AGE
+}
+
+// -------------------- MODULE FACTURATION & DEVIS --------------------
+
+model Client {
+  id              String        @id @default(uuid())
+  organisationId  String
+  nom             String
+  email           String        @unique
+  siret           String?
+  adresse         String
+  type            ClientType
+  statut          ClientStatut? @default(PROSPECT)
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+  devis           Devis[]
+  factures        Facture[]
+  opportunites    OpportuniteCRM[]
+
+  @@index([organisationId])
+}
+
+enum ClientType {
+  B2B
+  B2C
+}
+
+enum ClientStatut {
+  PROSPECT
+  PROPOSE
+  NEGOCIE
+  GAGNE
+  PERDU
+}
+
+model Produit {
+  id              String        @id @default(uuid())
+  organisationId  String
+  reference       String
+  nom             String
+  type            ProduitType
+  prixHt          Decimal
+  tauxTva         Decimal
+  stock           Int?
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+}
+
+enum ProduitType {
+  PRODUIT
+  SERVICE
+}
+
+model Devis {
+  id              String        @id @default(uuid())
+  organisationId  String
+  clientId        String
+  numero          String
+  statut          DevisStatut
+  montantHt       Decimal
+  tva             Decimal
+  dateExpiration  DateTime
+  tokenAcces      String        @unique @default(uuid())
+  tokenExpiresAt  DateTime?
+  createdAt       DateTime      @default(now())
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+  client          Client        @relation(fields: [clientId], references: [id])
+  facture         Facture?
+  lignes          LigneDevis[]
+
+  @@index([organisationId, clientId])
+}
+
+model LigneDevis {
+  id              String   @id @default(uuid())
+  devisId         String
+  produitId       String?
+  description     String
+  quantite        Decimal
+  prixUnitaireHt  Decimal
+  tauxTva         Decimal
+
+  devis           Devis    @relation(fields: [devisId], references: [id], onDelete: Cascade)
+}
+
+enum DevisStatut {
+  DRAFT
+  ENVOYE
+  ACCEPTE
+  REFUSE
+}
+
+model Facture {
+  id              String          @id @default(uuid())
+  organisationId  String
+  clientId        String
+  devisId         String?         @unique
+  numero          String
+  statut          FactureStatut
+  montantHt       Decimal
+  tvaMontant      Decimal
+  dateEcheance    DateTime
+  stripePaymentIntent String?
+  tokenAcces      String?         @unique
+  tokenExpiresAt  DateTime?
+  createdAt       DateTime        @default(now())
+
+  organisation    Organisation    @relation(fields: [organisationId], references: [id])
+  client          Client          @relation(fields: [clientId], references: [id])
+  devis           Devis?          @relation(fields: [devisId], references: [id])
+  lignes          LigneFacture[]
+  transaction     TransactionBancaire?
+  appelsRecouvrement AppelRecouvrement[]
+
+  @@index([organisationId, clientId])
+}
+
+model LigneFacture {
+  id              String   @id @default(uuid())
+  factureId       String
+  produitId       String?
+  description     String
+  quantite        Decimal
+  prixUnitaireHt  Decimal
+  tauxTva         Decimal
+
+  facture         Facture  @relation(fields: [factureId], references: [id], onDelete: Cascade)
+}
+
+enum FactureStatut {
+  EMISE
+  PAYEE
+  IMPAYEE
+  AVOIR
+}
+
+enum DocumentFactType {
+  DEVIS
+  FACTURE
+}
+
+model LigneDocument {
+  id            String   @id @default(uuid())
+  documentId    String
+  documentType  DocumentFactType
+  produitId     String?
+  description   String
+  quantite      Decimal
+  prixUnitaireHt Decimal
+  tauxTva       Decimal
+
+  @@ignore
+}
+
+model OpportuniteCRM {
+  id              String        @id @default(uuid())
+  organisationId  String
+  clientId        String
+  titre           String
+  etape           OpportuniteEtape
+  valeurEstimee   Decimal
+  dateClosing     DateTime?
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+  client          Client        @relation(fields: [clientId], references: [id])
+}
+
+enum OpportuniteEtape {
+  PROSPECT
+  PROPOSE
+  NEGOCIE
+  GAGNE
+  PERDU
+}
+
+model NoteDeFrais {
+  id              String        @id @default(uuid())
+  organisationId  String
+  userId          String
+  photoUrl        String
+  montantOcr      Decimal?
+  dateOcr         DateTime?
+  categorieOcr    String?
+  marchandOcr     String?
+  tvaOcr          Decimal?
+  statut          NoteFraisStatut
+  createdAt       DateTime      @default(now())
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+
+  @@index([organisationId])
+}
+
+enum NoteFraisStatut {
+  EN_ATTENTE
+  VALIDE
+}
+
+// -------------------- MODULE COMPTABILITÉ & LIAISON --------------------
+
+model CompteBancaire {
+  id              String        @id @default(uuid())
+  organisationId  String
+  iban            String
+  banque          String
+  apiToken        String
+  soldeActuel     Decimal
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+  transactions    TransactionBancaire[]
+
+  @@index([organisationId])
+}
+
+model TransactionBancaire {
+  id              String            @id @default(uuid())
+  compteId        String
+  montant         Decimal
+  libelle         String
+  date            DateTime
+  statutMatching  StatutMatching
+  factureId       String?           @unique
+  scoreMatching   Float?
+
+  compte          CompteBancaire    @relation(fields: [compteId], references: [id])
+  facture         Facture?          @relation(fields: [factureId], references: [id])
+}
+
+enum StatutMatching {
+  NON_MATCHE
+  MATCHE
+  PARTIEL
+}
+
+model EcritureComptable {
+  id              String        @id @default(uuid())
+  organisationId  String
+  journal         String
+  compteDebit     String
+  compteCredit    String
+  montant         Decimal
+  dateEcriture    DateTime
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+}
+
+model RapportTVA {
+  id              String        @id @default(uuid())
+  organisationId  String
+  periode         String        // YYYY-MM
+  tvaCollectee    Decimal
+  tvaDeductible   Decimal
+  soldeTva        Decimal
+  anomalies       Json?
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+}
+
+// -------------------- MODULE RH & PAIE --------------------
+
+model Employe {
+  id              String        @id @default(uuid())
+  organisationId  String
+  nom             String
+  prenom          String
+  nir             String
+  dateNaissance   DateTime
+  poste           String
+  conventionCollective String
+  statut          EmployeStatut
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+  contrats        ContratTravail[]
+}
+
+enum EmployeStatut {
+  ACTIF
+  SORTI
+}
+
+model ContratTravail {
+  id              String        @id @default(uuid())
+  employeId       String
+  type            ContratType
+  dateDebut       DateTime
+  dateFin         DateTime?
+  salaireBrut     Decimal
+  tempsTravail    Decimal
+  documentUrl     String
+
+  employe         Employe       @relation(fields: [employeId], references: [id])
+}
+
+enum ContratType {
+  CDI
+  CDD
+  STAGE
+}
+
+// (Variables de paie, bulletins, etc. à ajouter selon besoin)
+
+// -------------------- MODULE VOCAL & RECOUVREMENT --------------------
+
+model AppelRecouvrement {
+  id              String        @id @default(uuid())
+  organisationId  String
+  factureId       String
+  phoneNumber     String
+  resultat        String
+  promesseMontant Decimal?
+  promesseDate    DateTime?
+  rapportUrl      String?
+  createdAt       DateTime      @default(now())
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+  facture         Facture       @relation(fields: [factureId], references: [id])
+}
+
+// -------------------- MODULE LOGISTIQUE / DOUANE --------------------
+
+model DossierDouane {
+  id              String        @id @default(uuid())
+  organisationId  String
+  reference       String
+  packingListUrl  String?
+  factureExportUrl String?
+  codesHs         Json?
+  createdAt       DateTime      @default(now())
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+}
+
+// -------------------- CHAT CONVERSATIONS --------------------
+
+model ChatConversation {
+  id              String        @id @default(uuid())
+  organisationId  String
+  titre           String        @default("Nouvelle conversation")
+  messages        Json
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  organisation    Organisation  @relation(fields: [organisationId], references: [id])
+
+  @@index([organisationId])
+}
