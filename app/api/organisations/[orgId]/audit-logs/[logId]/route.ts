@@ -14,7 +14,7 @@ export async function GET(
 
   const { orgId, logId } = params;
 
-  const member = await prisma.organisationMember.findFirst({
+  const member = await prisma.orgMember.findFirst({
     where: { organisationId: orgId, userId: session.user.id },
   });
 

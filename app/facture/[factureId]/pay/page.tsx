@@ -54,7 +54,7 @@ function PaymentForm({ factureId, token, montantTTC }: { factureId: string; toke
         toast.error(error.message || 'Erreur lors du paiement');
       }
     } catch (err) {
-      toast.error('Erreur lors du paiement');
+      toast.error(`Erreur lors du paiement: ${err} `);
     } finally {
       setIsProcessing(false);
     }
@@ -104,7 +104,7 @@ export default function PayFacturePage() {
       const result = await createPaymentIntent(factureId, token || '');
       setClientSecret(result.clientSecret);
     } catch (error) {
-      toast.error('Erreur lors de l\'initialisation du paiement');
+      toast.error(`Erreur lors de l'initialisation du paiement: ${error} `);
     }
   };
 
@@ -200,7 +200,7 @@ export default function PayFacturePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {facture.lignes?.map((ligne, index) => (
+                {facture.lignes?.map((ligne: { description: string; quantite: number; prixUnitaireHt: number; tauxTva: number }, index: number) => (
                   <TableRow key={index}>
                     <TableCell>{ligne.description}</TableCell>
                     <TableCell className="text-right">{ligne.quantite}</TableCell>

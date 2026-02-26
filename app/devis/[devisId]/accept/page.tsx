@@ -157,7 +157,7 @@ export default function AcceptDevisPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {devis.lignes?.map((ligne, index) => (
+                {devis.lignes?.map((ligne: { description: string; quantite: number; prixUnitaireHt: number; tauxTva: number }, index: number) => (
                   <TableRow key={index}>
                     <TableCell>{ligne.description}</TableCell>
                     <TableCell className="text-right">{ligne.quantite}</TableCell>

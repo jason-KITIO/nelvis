@@ -54,7 +54,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return NextResponse.json({ error: `Erreur serveur: ${error} ` }, { status: 500 });
   }
 }
 
@@ -85,7 +85,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (validated.clientId) updateData.clientId = validated.clientId;
     if (validated.dateExpiration) updateData.dateExpiration = new Date(validated.dateExpiration);
 
@@ -205,6 +205,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return NextResponse.json({ error: `Erreur serveur: ${error} ` }, { status: 500 });
   }
 }

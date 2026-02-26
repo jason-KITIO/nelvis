@@ -41,10 +41,10 @@ export default function Home() {
             Version 2026 Finale
           </Badge>
           <h1 className="text-5xl font-extrabold tracking-tight text-foreground md:text-7xl mb-8">
-            L'Intelligence Artificielle qui <span className="text-primary">gère votre entreprise</span> de A à Z
+            L&apos;Intelligence Artificielle qui <span className="text-primary">gère votre entreprise</span> de A à Z
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Le premier <strong>"Company OS"</strong> agentique pour entrepreneurs. De la création
+            Le premier <strong>&quot;Company OS&quot;</strong> agentique pour entrepreneurs. De la création
             de vos statuts à la relance de vos impayés par téléphone, Nelvis automatise votre succès.
           </p>
           <div className="mt-10 flex gap-4 justify-center flex-wrap">
@@ -62,7 +62,7 @@ export default function Home() {
       <section id="piliers" className="px-6 py-24 bg-slate-50/50">
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold tracking-tight mb-4">Les 5 Piliers de l'Écosystème</h2>
+            <h2 className="text-4xl font-bold tracking-tight mb-4">Les 5 Piliers de l&apos;Écosystème</h2>
             <p className="text-muted-foreground">Une infrastructure complète pour piloter votre croissance.</p>
           </div>
 
@@ -73,7 +73,7 @@ export default function Home() {
               title="JURIDIQUE"
               subtitle="Birth & Governance"
               status="Opérationnel"
-              features={["Questionnaire IA (Statuts/M0)", "Site Web Vitrine Offert", "PV d'Assemblées Digitalisés"]}
+              features={["Questionnaire IA (Statuts/M0)", "Site Web Vitrine Offert", "PV d&apos;Assemblées Digitalisés"]}
             />
 
             {/* FINANCES */}
@@ -200,7 +200,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl grid grid-cols-2 md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-2">
             <div className="text-2xl font-black text-primary mb-6">NELVIS</div>
-            <p className="text-muted-foreground max-w-xs">L'OS nouvelle génération pour les entrepreneurs qui veulent se concentrer sur l'essentiel.</p>
+            <p className="text-muted-foreground max-w-xs">L&apos;OS nouvelle génération pour les entrepreneurs qui veulent se concentrer sur l&apos;essentiel.</p>
           </div>
           <div>
             <h4 className="font-bold mb-4">Écosystème</h4>
@@ -227,7 +227,15 @@ export default function Home() {
 
 // --- SOUS-COMPOSANTS ---
 
-function PillarCard({ icon, title, subtitle, status, features, isUpcoming = false, variant = "default" }: any) {
+function PillarCard({ icon, title, subtitle, status, features, isUpcoming = false, variant = "default" }: {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  status: string;
+  features: string[];
+  isUpcoming?: boolean;
+  variant?: string;
+}) {
   return (
     <Card className={`group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${isUpcoming ? 'opacity-80' : ''}`}>
       <CardHeader>
@@ -252,7 +260,7 @@ function PillarCard({ icon, title, subtitle, status, features, isUpcoming = fals
       {isUpcoming && (
         <CardFooter>
           <Button variant="outline" className="w-full gap-2 border-primary/20 hover:bg-primary/5">
-            <Mail size={14} /> M'avertir de la sortie
+            <Mail size={14} /> M&apos;avertir de la sortie
           </Button>
         </CardFooter>
       )}
@@ -260,7 +268,16 @@ function PillarCard({ icon, title, subtitle, status, features, isUpcoming = fals
   );
 }
 
-function PricingCard({ name, price, description, period, features, highlight = false, disabled = false, buttonText }: any) {
+function PricingCard({ name, price, description, period, features, highlight = false, disabled = false, buttonText }: {
+  name: string;
+  price: string;
+  description: string;
+  period: string;
+  features: string[];
+  highlight?: boolean;
+  disabled?: boolean;
+  buttonText: string;
+}) {
   return (
     <Card className={`relative flex flex-col ${highlight ? 'border-primary shadow-2xl md:-translate-y-4 z-10' : ''}`}>
       {highlight && <div className="bg-primary text-white text-[10px] font-bold uppercase py-1 px-3 absolute -top-3 left-1/2 -translate-x-1/2 rounded-full tracking-widest">Recommandé</div>}

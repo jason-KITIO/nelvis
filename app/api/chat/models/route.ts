@@ -19,7 +19,7 @@ export async function GET() {
     const data = await response.json();
     
     console.log('=== MODÈLES GEMINI DISPONIBLES ===');
-    data.models?.forEach((model: any) => {
+    data.models?.forEach((model: { name: string; supportedGenerationMethods?: string[] }) => {
       console.log(`- ${model.name}`);
       console.log(`  Méthodes: ${model.supportedGenerationMethods?.join(', ')}`);
     });

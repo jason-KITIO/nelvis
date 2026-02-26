@@ -21,11 +21,11 @@ export async function GET(
     const dateDebut = searchParams.get("dateDebut");
     const dateFin = searchParams.get("dateFin");
 
-    const where: any = { organisationId: orgId };
+    const where: Record<string, unknown> = { organisationId: orgId };
     if (dateDebut || dateFin) {
       where.dateEcriture = {};
-      if (dateDebut) where.dateEcriture.gte = new Date(dateDebut);
-      if (dateFin) where.dateEcriture.lte = new Date(dateFin);
+      if (dateDebut) (where.dateEcriture as Record<string, unknown>).gte = new Date(dateDebut);
+      if (dateFin) (where.dateEcriture as Record<string, unknown>).lte = new Date(dateFin);
     }
 
     const ecritures = await prisma.ecritureComptable.findMany({
@@ -58,6 +58,6 @@ export async function GET(
       },
     });
   } catch (error) {
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    return NextResponse.json({ error: `Erreur serveur: ${error} ` }, { status: 500 });
   }
 }

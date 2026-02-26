@@ -34,8 +34,8 @@ export async function POST(
     data: {
       dossierId,
       type: 'M0',
-      content: m0Content,
-      generatedBy: auth.userId!,
+      contenu: m0Content,
+      fichierUrl: '',
     },
   });
 
@@ -44,9 +44,8 @@ export async function POST(
       organisationId: orgId,
       userId: auth.userId!,
       action: 'GENERATE_M0',
-      entityType: 'DOSSIER_JURIDIQUE',
-      entityId: dossierId,
-      metadata: { documentId: document.id },
+      module: 'juridique',
+      payload: { dossierId, documentId: document.id },
     },
   });
 

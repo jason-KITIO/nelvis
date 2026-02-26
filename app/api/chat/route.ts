@@ -47,7 +47,7 @@ RÉPONDS UNIQUEMENT EN JSON VALIDE.`
     });
 
     // Construire l'historique complet de la conversation
-    const conversationHistory = messages.map((msg: any) => ({
+    const conversationHistory = messages.map((msg: { role: string; content: string }) => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }]
     }));

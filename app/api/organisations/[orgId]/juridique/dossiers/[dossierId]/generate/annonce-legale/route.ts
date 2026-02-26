@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { orgId: string; dossierId: string } }
+  { params }: { params: { orgId: string; dossierId: string } },
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
   const { orgId, dossierId } = params;
@@ -19,7 +19,7 @@ export async function POST(
   });
 
   if (!member) {
-    return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
 
   const dossier = await prisma.dossierJuridique.findUnique({
@@ -27,7 +27,7 @@ export async function POST(
   });
 
   if (!dossier) {
-    return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
+    return NextResponse.json({ error: "Dossier non trouvé" }, { status: 404 });
   }
 
   // TODO: Intégrer l'IA pour générer l'annonce légale
@@ -36,7 +36,7 @@ export async function POST(
   const document = await prisma.documentJuridique.create({
     data: {
       dossierId,
-      type: 'ANNONCE',
+      type: "ANNONCE",
       contenu: contenuAnnonce,
       fichierUrl: `/documents/${dossierId}/annonce-legale.pdf`,
     },

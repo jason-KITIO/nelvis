@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { createFactureAISchema } from '@/lib/validations/facture';
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ orgId: string }> }) {
+export async function POST(req: NextRequest) {
   try {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
 
     const body = await req.json();
-    const validated = createFactureAISchema.parse(body);
+    createFactureAISchema.parse(body);
 
     // TODO: Intégrer avec service IA (OpenAI/Bedrock) pour parser la commande
     // Pour l'instant, retourner une erreur indiquant que c'est en développement

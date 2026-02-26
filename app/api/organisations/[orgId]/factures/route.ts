@@ -22,13 +22,13 @@ export async function GET(
     const dateDebut = searchParams.get("dateDebut");
     const dateFin = searchParams.get("dateFin");
 
-    const where: any = { organisationId: orgId };
+    const where: Record<string, unknown> = { organisationId: orgId };
     if (statut) where.statut = statut;
     if (clientId) where.clientId = clientId;
     if (dateDebut || dateFin) {
       where.createdAt = {};
-      if (dateDebut) where.createdAt.gte = new Date(dateDebut);
-      if (dateFin) where.createdAt.lte = new Date(dateFin);
+      if (dateDebut) (where.createdAt as Record<string, unknown>).gte = new Date(dateDebut);
+      if (dateFin) (where.createdAt as Record<string, unknown>).lte = new Date(dateFin);
     }
 
     const factures = await prisma.facture.findMany({

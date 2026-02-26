@@ -24,6 +24,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: 'Mot de passe réinitialisé avec succès' });
   } catch (error) {
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return NextResponse.json({ error: `Erreur serveur: ${error} ` }, { status: 500 });
   }
 }

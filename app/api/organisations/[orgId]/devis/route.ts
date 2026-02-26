@@ -31,7 +31,7 @@ export async function GET(
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
-    const where: any = { organisationId: orgId };
+    const where: Record<string, unknown> = { organisationId: orgId };
     if (statut) where.statut = statut;
     if (clientId) where.clientId = clientId;
 
@@ -58,7 +58,7 @@ export async function GET(
       })),
     });
   } catch (error) {
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+    return NextResponse.json({ error: `Erreur serveur: ${error} ` }, { status: 500 });
   }
 }
 

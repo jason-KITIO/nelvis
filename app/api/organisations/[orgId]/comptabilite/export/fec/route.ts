@@ -68,6 +68,6 @@ export async function GET(
       },
     });
   } catch (error) {
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    return NextResponse.json({ error: `Erreur serveur: ${error} ` }, { status: 500 });
   }
 }

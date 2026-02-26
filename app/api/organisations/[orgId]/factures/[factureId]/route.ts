@@ -42,7 +42,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ or
 
     if (!existing) return NextResponse.json({ error: 'Facture non trouvée' }, { status: 404 });
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (validated.clientId) updateData.clientId = validated.clientId;
     if (validated.dateEcheance) updateData.dateEcheance = new Date(validated.dateEcheance);
 

@@ -41,7 +41,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
     const pageWidth = doc.internal.pageSize.getWidth();
     
     // Couleur principale (depuis charte graphique ou défaut)
-    const primaryColor = facture.organisation.charteGraphique?.primaryColor || '#2563eb';
+    const charteGraphique = facture.organisation.charteGraphique as { primaryColor?: string } | null;
+    const primaryColor = charteGraphique?.primaryColor || '#2563eb';
     
     // En-tête avec logo et infos organisation
     doc.setFontSize(20);
@@ -98,13 +99,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
     let currentY = startY + 12;
     doc.setTextColor(0);
     
-    facture.lignes.forEach((ligne: any) => {
+    facture.lignes.forEach((ligne) => {
       const totalLigne = Number(ligne.quantite) * Number(ligne.prixUnitaireHt);
       doc.text(ligne.description, 22, currentY);
-      doc.text(ligne.quantite.toString(), pageWidth - 90, currentY, { align: 'right' });
-      doc.text(`${Number(ligne.prixUnitaireHt).toFixed(2)} €`, pageWidth - 65, currentY, { align: 'right' });
-      doc.text(`${ligne.tauxTva}%`, pageWidth - 40, currentY, { align: 'right' });
-      doc.text(`${totalLigne.toFixed(2)} €`, pageWidth - 22, currentY, { align: 'right' });
+      doc.text(String(ligne.quantite), pageWidth - 90, currentY, { align: 'right' as const });
+      doc.text(`${Number(ligne.prixUnitaireHt).toFixed(2)} €`, pageWidth - 65, currentY, { align: 'right' as const });
+      doc.text(`${Number(ligne.tauxTva)}%`, pageWidth - 40, currentY, { align: 'right' as const });
+      doc.text(`${totalLigne.toFixed(2)} €`, pageWidth - 22, currentY, { align: 'right' as const });
       currentY += 8;
     });
     
@@ -117,25 +118,25 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orgI
     currentY += 10;
     doc.setFontSize(10);
     doc.text('Total HT:', pageWidth - 60, currentY);
-    doc.text(`${Number(facture.montantHt).toFixed(2)} €`, pageWidth - 22, currentY, { align: 'right' });
+    doc.text(`${Number(facture.montantHt).toFixed(2)} €`, pageWidth - 22, currentY, { align: 'right' as const });
     
     currentY += 7;
     doc.text('TVA:', pageWidth - 60, currentY);
-    doc.text(`${Number(facture.tvaMontant).toFixed(2)} €`, pageWidth - 22, currentY, { align: 'right' });
+    doc.text(`${Number(facture.tvaMontant).toFixed(2)} €`, pageWidth - 22, currentY, { align: 'right' as const });
     
     currentY += 10;
     doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('Total TTC:', pageWidth - 60, currentY);
     const totalTTC = Number(facture.montantHt) + Number(facture.tvaMontant);
-    doc.text(`${totalTTC.toFixed(2)} €`, pageWidth - 22, currentY, { align: 'right' });
+    doc.text(`${totalTTC.toFixed(2)} €`, pageWidth - 22, currentY, { align: 'right' as const });
     
     // Pied de page
     const footerY = doc.internal.pageSize.getHeight() - 20;
     doc.setFontSize(8);
-    doc.setFont(undefined, 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.setTextColor(100);
-    doc.text('Conditions de paiement: Paiement à réception de facture', pageWidth / 2, footerY, { align: 'center' });
+    doc.text('Conditions de paiement: Paiement à réception de facture', pageWidth / 2, footerY, { align: 'center' as const });
     
     // Générer le buffer PDF
     const pdfBuffer = Buffer.from(doc.output('arraybuffer'));

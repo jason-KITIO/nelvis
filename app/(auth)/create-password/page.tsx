@@ -11,13 +11,13 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Check, X } from "lucide-react";
 import { AuthRedirect } from "@/components/guards";
 import { useResetPassword } from "@/hooks/use-auth";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function CreatePasswordPage() {
+function CreatePasswordForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -44,8 +44,7 @@ export default function CreatePasswordPage() {
   };
 
   return (
-    <AuthRedirect>
-      <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-screen items-center justify-center p-4">
       <div className={cn("flex flex-col gap-6 w-full max-w-xl")}>
         <Card className="overflow-hidden p-0">
           <CardContent className="p-0">
@@ -173,6 +172,15 @@ export default function CreatePasswordPage() {
         </FieldDescription>
       </div>
     </div>
+  );
+}
+
+export default function CreatePasswordPage() {
+  return (
+    <AuthRedirect>
+      <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Chargement...</div>}>
+        <CreatePasswordForm />
+      </Suspense>
     </AuthRedirect>
   );
 }

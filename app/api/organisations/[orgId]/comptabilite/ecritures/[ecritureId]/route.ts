@@ -29,7 +29,7 @@ export async function GET(
 
     return NextResponse.json(ecriture);
   } catch (error) {
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    return NextResponse.json({ error: `Erreur serveur : ${error} ` }, { status: 500 });
   }
 }
 
@@ -73,6 +73,6 @@ export async function PATCH(
 
     return NextResponse.json(ecriture);
   } catch (error) {
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    return NextResponse.json({ error: `Erreur serveur : ${error} ` }, { status: 500 });
   }
 }

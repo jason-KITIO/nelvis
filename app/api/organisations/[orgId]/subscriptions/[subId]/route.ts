@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import {prisma} from '@/lib/prisma';
 
 export async function GET(
   req: NextRequest,
@@ -14,7 +14,7 @@ export async function GET(
 
   const { orgId, subId } = params;
 
-  const member = await prisma.organisationMember.findFirst({
+  const member = await prisma.orgMember.findFirst({
     where: { organisationId: orgId, userId: session.user.id },
   });
 

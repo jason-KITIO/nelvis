@@ -25,7 +25,7 @@ export async function GET(
     const doc = new jsPDF();
     
     doc.setFontSize(20);
-    doc.text('DEVIS', 105, 20, { align: 'center' } as any);
+    doc.text('DEVIS', 105, 20, { align: 'center' as const });
     
     doc.setFontSize(10);
     doc.text(devis.organisation.name || '', 20, 40);

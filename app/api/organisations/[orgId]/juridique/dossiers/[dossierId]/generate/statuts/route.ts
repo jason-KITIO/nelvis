@@ -34,8 +34,8 @@ export async function POST(
     data: {
       dossierId,
       type: 'STATUTS',
-      content: statutsContent,
-      generatedBy: auth.userId!,
+      contenu: statutsContent,
+      fichierUrl: '',
     },
   });
 
@@ -44,9 +44,8 @@ export async function POST(
       organisationId: orgId,
       userId: auth.userId!,
       action: 'GENERATE_STATUTS',
-      entityType: 'DOSSIER_JURIDIQUE',
-      entityId: dossierId,
-      metadata: { documentId: document.id },
+      module: 'juridique',
+      payload: { dossierId, documentId: document.id },
     },
   });
 
