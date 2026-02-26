@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { orgId: string; logId: string } }
+  { params }: { params: { orgId: string; logId: string } },
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
   const { orgId, logId } = params;
@@ -19,7 +19,7 @@ export async function GET(
   });
 
   if (!member) {
-    return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
 
   const log = await prisma.auditLog.findUnique({
@@ -27,7 +27,7 @@ export async function GET(
   });
 
   if (!log) {
-    return NextResponse.json({ error: 'Log non trouvé' }, { status: 404 });
+    return NextResponse.json({ error: "Log non trouvé" }, { status: 404 });
   }
 
   return NextResponse.json(log);
